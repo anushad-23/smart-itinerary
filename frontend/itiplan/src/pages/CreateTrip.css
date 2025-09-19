@@ -1,0 +1,61 @@
+.container {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  width: 500px;
+  margin: 40px auto;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+input[type="text"], input[type="date"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.preferences {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.preferences label {
+  font-weight: normal;
+}
+
+.buttons {
+  text-align: right;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel {
+  background: #ccc;
+  margin-right: 10px;
+}
+
+.create {
+  background: #007BFF;
+  color: white;
+}
