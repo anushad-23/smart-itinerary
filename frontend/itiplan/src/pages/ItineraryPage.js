@@ -1,85 +1,153 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import API from "../api/axios";
+import "../pages/ItineraryPage.css";
 
 function ItineraryPage() {
-  const location = useLocation();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const trip = location.state;
+  const [trip, setTrip] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('itinerary');
+
+  useEffect(() => {
+    fetchTrip();
+  }, [id]);
+
+  const fetchTrip = async () => {
+    try {
+      const response = await API.get(`/api/trips/${id}/`);
+      setTrip(response.data);
+    } catch (error) {
+      console.error("Error fetching trip:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <p>Loading itinerary...</p>
+      </div>
+    );
+  }
 
   if (!trip) {
     return (
       <div style={{ padding: "20px" }}>
         <h2>No itinerary found.</h2>
-        <button
-          onClick={() => navigate("/")}
-          style={{
-            marginTop: "10px",
-            padding: "10px 20px",
-            background: "purple",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer"
-          }}
-        >
-          Back to Dashboard
-        </button>
+        <button onClick={() => navigate("/dashboard")}>Back to Dashboard</button>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "20px", background: "#faf5ff", minHeight: "100vh" }}>
-      <h1 style={{ textAlign: "center", color: "purple" }}>{trip.title}</h1>
-      <p style={{ textAlign: "center" }}>
-        {trip.startDate} → {trip.endDate}
-      </p>
+    <div className="itinerary-page">
+      <div className="itinerary-header">
+        <h1>{trip.title}</h1>
+        <p>{trip.start_date} → {trip.end_date}</p>
+        <p><strong>Budget:</strong> ${trip.budget}</p>
+      </div>
 
-      {trip.itinerary.map((dayPlan) => (
-        <div
-          key={dayPlan.day}
-          style={{
-            background: "white",
-            margin: "20px auto",
-            padding: "20px",
-            borderRadius: "10px",
-            maxWidth: "600px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-          }}
+      <div className="tabs">
+        <button 
+          className={activeTab === 'itinerary' ? 'active' : ''}
+          onClick={() => setActiveTab('itinerary')}
         >
-          <h2 style={{ color: "purple" }}>Day {dayPlan.day}</h2>
+          📅 Itinerary
+        </button>
+        <button 
+          className={activeTab === 'budget' ? 'active' : ''}
+          onClick={() => setActiveTab('budget')}
+        >
+          💰 Budget & Expenses
+        </button>
+        <button 
+          className={activeTab === 'hotels' ? 'active' : ''}
+          onClick={() => setActiveTab('hotels')}
+        >
+          🏨 Hotels
+        </button>
+      </div>
 
-          <h3>Places to Visit</h3>
-          <ul>
-            {dayPlan.places.map((place, i) => (
-              <li key={i}>
-                <strong>{place.name}</strong> ({place.time})
-              </li>
-            ))}
-          </ul>
-
-          <h3>Food & Dining</h3>
-          <ul>
-            {dayPlan.food.map((meal, i) => (
-              <li key={i}>
-                <strong>{meal.name}</strong> ({meal.time})
-              </li>
-            ))}
-          </ul>
+      {activeTab === 'itinerary' && (
+        <div className="itinerary-content">
+          {trip.days && trip.days.length > 0 ? (
+            trip.days.map((day) => (
+              <div key={day.id} className="day-card">
+                <h2>Day {day.day_number}</h2>
+                <p className="day-date">{day.date}</p>
+                {day.activities && day.activities.length > 0 ? (
+                  day.activities.map((activity, idx) => (
+                    <div key={idx} className="activity-item">
+                      <div className="activity-time">
+                        {activity.start_time} - {activity.end_time || "All Day"}
+                      </div>
+                      <div className="activity-details">
+                        <h3>{activity.name}</h3>
+                        <p className="activity-type">{activity.activity_type}</p>
+                        {activity.description && <p>{activity.description}</p>}
+                        {activity.location && (
+                          <p className="activity-location">📍 {activity.location}</p>
+                        )}
+                        {activity.estimated_cost > 0 && (
+                          <p className="activity-cost">💰 ${activity.estimated_cost}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="no-activities">No activities planned for this day.</p>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="no-days">
+              <p>No itinerary has been generated yet. Add activities to get started!</p>
+              <button className="btn-add">Add Activities</button>
+            </div>
+          )}
         </div>
-      ))}
+      )}
+
+      {activeTab === 'budget' && (
+        <div className="budget-content">
+          <div className="budget-summary">
+            <h2>Budget Summary</h2>
+            <div className="budget-stats">
+              <div className="stat-item">
+                <span className="stat-label">Total Budget</span>
+                <span className="stat-value">${trip.budget}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Spent</span>
+                <span className="stat-value">${trip.total_expenses || 0}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Remaining</span>
+                <span className="stat-value">${trip.budget - (trip.total_expenses || 0)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Expense list would go here */}
+          <div className="expenses-list">
+            <h3>Recent Expenses</h3>
+            <p>Expense tracking feature coming soon...</p>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'hotels' && (
+        <div className="hotels-content">
+          <h2>Hotel Bookings</h2>
+          <p>Hotel booking feature coming soon...</p>
+        </div>
+      )}
 
       <div style={{ textAlign: "center", marginTop: "20px" }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            padding: "10px 20px",
-            background: "purple",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer"
-          }}
-        >
+        <button className="btn-back" onClick={() => navigate("/dashboard")}>
           ⬅ Back
         </button>
       </div>
@@ -88,5 +156,3 @@ function ItineraryPage() {
 }
 
 export default ItineraryPage;
-
-

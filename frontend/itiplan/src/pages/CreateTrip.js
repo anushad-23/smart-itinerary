@@ -1,71 +1,84 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CreateTrip.css"; 
+import "./CreateTrip.css";
+import API from "../api/axios";
 
 function CreateTrip() {
   const [trip, setTrip] = useState({
     destination: "",
     startDate: "",
     endDate: "",
+    budget: "",
     preferences: [],
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
   const preferencesList = [
-    "Cultural & Historical Sites",
-    "Nature & Outdoor Activities",
-    "Food & Culinary Experiences",
-    "Entertainment & Nightlife",
-    "Shopping",
-    "Adventure Sports",
-    "Relaxation & Wellness",
-    "Photography",
-    "Museums & Art",
-    "Local Markets",
-    "Architecture",
-    "Wildlife",
+    { id: 1, name: "Cultural & Historical Sites" },
+    { id: 2, name: "Nature & Outdoor Activities" },
+    { id: 3, name: "Food & Culinary Experiences" },
+    { id: 4, name: "Entertainment & Nightlife" },
+    { id: 5, name: "Shopping" },
+    { id: 6, name: "Adventure Sports" },
+    { id: 7, name: "Relaxation & Wellness" },
+    { id: 8, name: "Photography" },
+    { id: 9, name: "Museums & Art" },
+    { id: 10, name: "Local Markets" },
+    { id: 11, name: "Architecture" },
+    { id: 12, name: "Wildlife" },
   ];
 
-  // Handle text/date inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTrip((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle checkbox changes
   const handleCheckbox = (pref) => {
     setTrip((prev) => {
-      if (prev.preferences.includes(pref)) {
+      if (prev.preferences.includes(pref.id)) {
         return {
           ...prev,
-          preferences: prev.preferences.filter((p) => p !== pref),
+          preferences: prev.preferences.filter((p) => p !== pref.id),
         };
       } else {
-        return { ...prev, preferences: [...prev.preferences, pref] };
+        return { ...prev, preferences: [...prev.preferences, pref.id] };
       }
     });
   };
 
-  // Handle form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (trip.preferences.length === 0) {
       alert("Please select at least one preference!");
       return;
     }
 
-    console.log("Trip Saved:", trip);
-    alert("Trip saved successfully 🎉 (check console)");
-
-    // Example: Save to localStorage
-    localStorage.setItem("trip", JSON.stringify(trip));
-    navigate("/");
+    setLoading(true);
+    try {
+      const response = await API.post('/api/trips/', {
+        title: `${trip.destination} Trip`,
+        destination: trip.destination,
+        start_date: trip.startDate,
+        end_date: trip.endDate,
+        budget: trip.budget || 0,
+        interests: trip.preferences
+      });
+      
+      alert("Trip created successfully 🎉");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error creating trip:", error);
+      alert("Failed to create trip. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="container">
       <h2>Create New Trip</h2>
       <form onSubmit={handleSubmit}>
-        {/* Destination */}
         <label>Destination *</label>
         <input
           type="text"
@@ -76,7 +89,6 @@ function CreateTrip() {
           required
         />
 
-        {/* Dates */}
         <label>Start Date *</label>
         <input
           type="date"
@@ -95,37 +107,47 @@ function CreateTrip() {
           required
         />
 
-        {/* Preferences */}
+        <label>Budget (Optional)</label>
+        <input
+          type="number"
+          name="budget"
+          placeholder="e.g., 5000"
+          value={trip.budget}
+          onChange={handleChange}
+          min="0"
+        />
+
         <label>Travel Preferences *</label>
         <p style={{ fontSize: "13px", color: "#666" }}>
           Select what interests you most (choose at least one):
         </p>
         <div className="preferences">
           {preferencesList.map((pref) => (
-            <label key={pref}>
+            <label key={pref.id}>
               <input
                 type="checkbox"
-                checked={trip.preferences.includes(pref)}
+                checked={trip.preferences.includes(pref.id)}
                 onChange={() => handleCheckbox(pref)}
               />
-              {pref}
+              {pref.name}
             </label>
           ))}
         </div>
 
-        {/* Buttons */}
         <div className="buttons">
           <button
             type="button"
             className="btn cancel"
-            onClick={() =>
-              setTrip({ destination: "", startDate: "", endDate: "", preferences: [] })
-            }
+            onClick={() => navigate("/dashboard")}
           >
             Cancel
           </button>
-          <button type="submit" className="btn create">
-            Create Trip
+          <button 
+            type="submit" 
+            className="btn create"
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "Create Trip"}
           </button>
         </div>
       </form>
@@ -134,4 +156,3 @@ function CreateTrip() {
 }
 
 export default CreateTrip;
-
