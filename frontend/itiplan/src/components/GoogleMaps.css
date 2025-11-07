@@ -1,0 +1,108 @@
+.google-maps-container {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.maps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.maps-header h3 {
+  color: purple;
+  margin: 0;
+}
+
+.map-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-directions {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.btn-directions:hover {
+  background: #1e4ed8;
+}
+
+.map-wrapper {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.map-placeholder p {
+  margin: 10px 0;
+  color: #666;
+}
+
+.placeholder-note {
+  font-size: 14px;
+  color: #999;
+}
+
+.locations-list {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 15px;
+}
+
+.locations-list h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.location-marker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.marker-number {
+  background: purple;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.marker-name {
+  font-weight: bold;
+  color: #333;
+  flex: 1;
+}
+
+.marker-address {
+  font-size: 13px;
+  color: #666;
+}
+
+

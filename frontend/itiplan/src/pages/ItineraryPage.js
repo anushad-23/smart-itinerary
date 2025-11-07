@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import API from "../api/axios";
+import ExpenseSplitter from "../components/ExpenseSplitter";
 import "../pages/ItineraryPage.css";
 
 function ItineraryPage() {
@@ -9,6 +10,7 @@ function ItineraryPage() {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('itinerary');
+  const [expenses, setExpenses] = useState([]);
 
   useEffect(() => {
     fetchTrip();
@@ -18,6 +20,9 @@ function ItineraryPage() {
     try {
       const response = await API.get(`/api/trips/${id}/`);
       setTrip(response.data);
+      // Fetch expenses for the trip
+      const expensesResponse = await API.get(`/api/expenses/?trip=${id}`);
+      setExpenses(expensesResponse.data);
     } catch (error) {
       console.error("Error fetching trip:", error);
     } finally {
@@ -131,11 +136,11 @@ function ItineraryPage() {
             </div>
           </div>
 
-          {/* Expense list would go here */}
-          <div className="expenses-list">
-            <h3>Recent Expenses</h3>
-            <p>Expense tracking feature coming soon...</p>
-          </div>
+          <ExpenseSplitter
+            tripId={id}
+            tripMembers={trip.members || []}
+            expenses={expenses}
+          />
         </div>
       )}
 
